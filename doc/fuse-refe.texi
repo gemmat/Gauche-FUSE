@@ -1,0 +1,419 @@
+input texinfo  @c -*-texinfo-*
+@comment %**start of header
+
+@setfilename fuse-refe.info
+@settitle Gauche-FUSE binding
+@dircategory The Algorithmic Language Scheme
+@direntry
+* Gauche-FUSE binding: (fuse-refe.info).	        Enabling you to write filesystems in the Scheme language..
+@end direntry
+@comment %**end of header
+
+@c $Id: $
+
+@c module and class index
+@defcodeindex md
+@defcodeindex cl
+
+@iftex
+@finalout
+@parskip 4pt plus 1pt
+@end iftex
+
+@titlepage
+
+@title Gauche-FUSE binding
+@subtitle version 1.0
+@author Teruaki Gemma (teruakigemma@@gmail.com)
+@page
+@vskip 0pt plus 1filll
+Copyright @copyright{} 2008 源馬 照明 (teruakigemma@@gmail.com)
+
+@end titlepage
+
+@node Top, fuse, (dir), (dir)
+
+@ifnottex
+This is a reference manual of Gauche-FUSE binding.
+This manual is for version 1.0.
+@end ifnottex
+
+@menu
+* fuse::
+@end menu
+
+@node fuse, Top, Top
+@chapter fuse
+@c NODE fuse
+
+@deftp {Module} fuse
+@mdindex fuse
+This is a Gauche extension module to use FUSE. This enable you to develop your own filesystem in the Scheme language, without learning kernel module programming.
+
+Callback functions correspond to the system call can tell FUSE its failure by two methods, to raise the <system-error> or to return a negative exact integer which inverted the @var{errno}.
+
+To represent @var{errno}, the following constants are defined.
+Each constant is bound to an exact integer representing the system's
+error number.  Note that the actual value may differ among systems,
+and some of these constants may not be defined on some systems.
+
+@example
+E2BIG             EHOSTDOWN         ENETDOWN          ENXIO
+EACCES            EHOSTUNREACH      ENETRESET         EOPNOTSUPP
+EADDRINUSE        EIDRM             ENETUNREACH       EOVERFLOW
+EADDRNOTAVAIL     EILSEQ            ENFILE            EPERM
+EADV              EINPROGRESS       ENOANO            EPFNOSUPPORT
+EAFNOSUPPORT      EINTR             ENOBUFS           EPIPE
+EAGAIN            EINVAL            ENOCSI            EPROTO
+EALREADY          EIO               ENODATA           EPROTONOSUPPORT
+EBADE             EISCONN           ENODEV            EPROTOTYPE
+EBADF             EISDIR            ENOENT            ERANGE
+EBADFD            EISNAM            ENOEXEC           EREMCHG
+EBADMSG           EKEYEXPIRED       ENOKEY            EREMOTE
+EBADR             EKEYREJECTED      ENOLCK            EREMOTEIO
+EBADRQC           EKEYREVOKED       ENOLINK           ERESTART
+EBADSLT           EL2HLT            ENOMEDIUM         EROFS
+EBFONT            EL2NSYNC          ENOMEM            ESHUTDOWN
+EBUSY             EL3HLT            ENOMSG            ESOCKTNOSUPPORT
+ECANCELED         EL3RST            ENONET            ESPIPE
+ECHILD            ELIBACC           ENOPKG            ESRCH
+ECHRNG            ELIBBAD           ENOPROTOOPT       ESRMNT
+ECOMM             ELIBEXEC          ENOSPC            ESTALE
+ECONNABORTED      ELIBMAX           ENOSR             ESTRPIPE
+ECONNREFUSED      ELIBSCN           ENOSTR            ETIME
+ECONNRESET        ELNRNG            ENOSYS            ETIMEDOUT
+EDEADLK           ELOOP             ENOTBLK           ETOOMANYREFS
+EDEADLOCK         EMEDIUMTYPE       ENOTCONN          ETXTBSY
+EDESTADDRREQ      EMFILE            ENOTDIR           EUCLEAN
+EDOM              EMLINK            ENOTEMPTY         EUNATCH
+EDOTDOT           EMSGSIZE          ENOTNAM           EUSERS
+EDQUOT            EMULTIHOP         ENOTSOCK          EWOULDBLOCK
+EEXIST            ENAMETOOLONG      ENOTTY            EXDEV
+EFAULT            ENAVAIL           ENOTUNIQ          EXFULL
+EFBIG
+@end example
+@end deftp
+
+@defun getattr path::<string> -> <sys-stat>
+Returns a @code{<sys-stat>} object as the file infomation of @var{path}.
+If @var{path} is a symbolic link, returns a stat of the file the link points.
+@end defun
+
+@defun readlink path::<string> -> <string>
+If a file specified by @var{path} is a symbolic link, its content is
+returned.  If @var{path} doesn't exist or is not a symbolic link, signal
+an error.
+@end defun
+
+@defun mknod path::<string> mode::<int> rdev::<int> -> <void>
+Create the filesystem node(file, device special file or named fifo) named @var{path} with the mode @var{mode} and the device number @var{rdev}.
+@end defun
+
+@defun mkdir pathname::<string> mode::<int> -> <void>
+Makes a directory @var{pathname} with mode @var{mode}.
+@end defun
+
+@defun unlink pathname::<string> -> <void>
+Removes @var{pathname}.
+@end defun
+
+@defun rmdir pathname::<string> -> <void>
+Removes a directory @var{pathname}.  The directory must be empty.
+@end defun
+
+@defun symlink existing::<string> new::<string> -> <void>
+Creates a symbolic link named @var{new} to the pathname @var{existing}.
+@end defun
+
+@defun rename old::<string> new::<string> -> <void>
+Renames a file @var{old} to @var{new}.
+@end defun
+
+@defun link existing::<string> new::<string> -> <void>
+Creates a hard link named @var{new} to the existing file @var{existing}.
+@end defun
+
+@defun chmod path::<string> mode::<int> -> <void>
+Change the mode of the file named @var{path} to @var{mode}.
+@var{mode} is a small positive integer whose lower 9 bits
+specifies POSIX style permission.
+@end defun
+
+@defun chown path::<string> owner-id::<int> group-id::<int> -> <void>
+Change the owner and/or group of the file named @var{path}
+to @var{owner-id} and @var{group-id} respectively.
+@var{owner-id} and @var{group-id} are an exact integer.
+@end defun
+
+@defun truncate path::<string> length::<int> -> <void>
+Truncates a regular file named by @var{path} to a size of @var{length} bytes.
+If the file is larger than @var{length} bytes, the extra data is discarded.
+If the file is smaller than that, zero is padded.
+@end defun
+
+@defun open path::<string> file-info::<fuse-file-info> -> <void>
+Create a file named by @var{path}.
+@end defun
+
+@defun read path::<string> outp::<output port> size::<int> offset::<int> file-info::<fuse-file-info> -> <int>
+Output the content of the file named @var{path} to @var{outp} output port with @var{size} bytes length and @var{offset} bytes offset.
+Return the byte length you readed as the file content.
+@end defun
+
+@defun write path::<string> inp::<input port> size::<int> offset::<int> file-info::<fuse-file-info> -> <int>
+Write the content of @var{inp} input port to the file named @var{path} with @var{size} bytes length and @var{offset} bytes offset.
+Return the byte length you wrote as the file content.
+@end defun
+
+@defun statfs path::<string> -> <sys-statvfs>
+Returns a @code{<sys-statvfs>} object as the information about a mounted file system.
+@var{path} is the pathname of any file within the mounted filesystem.
+@end defun
+
+@defun flush path::<string> file-info::<fuse-file-info> -> <void>
+Flush the write-buffer of the file named @var{path}.
+This method is optional and can safely be left unimplemented.
+@end defun
+
+@defun release path::<string> file-info::<fuse-file-info> -> <void>
+Release the file named @var{path}.
+This method is optional and can safely be left unimplemented.
+@end defun
+
+@defun fsync path::<string> datasync?::<boolean> file-info::<fuse-file-info> -> <void>
+Fsync the file named @var{path}.
+This method is optional and can safely be left unimplemented.
+@end defun
+
+@defun setxattr path::<string> name::<string> value::<string> flags::<int> -> <void>
+Set the extended file attributes of the file named @var{path} with @var{name}、@var{value}、@var{flags}.
+@end defun
+
+@defun getxattr path::<string> name::<string> -> <string>
+Return the value of the extended file attributes at @var{name} in the string, of the file named @var{path}.
+@end defun
+
+@defun listxattr path::<string> -> <string list>
+Return the value of the extended file attributes in the string list, of the file named @var{path}.
+@end defun
+
+@defun removexattr path::<string> name::<string> -> <void>
+Remove the value of the extended file attributes at @var{name}, of the file named @var{path}.
+@end defun
+
+@defun opendir path::<string> file-info::<fuse-file-info> -> <void>
+open the directory corresponding the directory @var{path}.
+@end defun
+
+@defun readdir path::<string> file-info::<fuse-file-info> -> <string list>
+Returns a list of strings of the directory entries corresponding to the @var{path}. 
+The returned list is not sorted.  An error is signalled
+if @var{path} doesn't exists or is not a directory.
+@end defun
+
+@defun releasedir path::<string> file-info::<fuse-file-info> -> <void>
+Release the directory corresponding to @var{path}.
+Fsync the directory corresponding to @var{path}.
+@end defun
+
+@defun init <void> -> <void>
+A callback function when the filesystem is initted.
+@end defun
+
+@defun destroy <void> -> <void>
+A callback function when the filesystem is destroyed.
+@end defun
+
+@defun access path::<string> mask::<int> -> <boolean>
+Returns a boolean value of indicating whether access of @var{path}
+is allowed in @var{mask}.   This procedure signals an error
+Create a file named by @var{path} with @var{mode} mode.
+@end defun
+
+@defun ftruncate path::<string> size::<int> file-info::<fuse-file-info> -> <void>
+Same to truncate, except, @var{file-info}.
+@end defun
+
+@defun fgetattr path::<string> file-info::<fuse-file-info> -> <sys-stat>
+Same to getattr, except, @var{file-info}.
+@end defun
+
+@defun utimens path::<string> atime::<int> mtime::<int> -> <void>
+Change the file's access time and modification time to @var{atime}
+and @var{mtime}, respectively.
+@end defun
+
+@defun start-fuse mountpoint::<string> &keyword args multithreaded::<boolean> getattr readlink mknod mkdir unlink rmdir symlink rename link chmod chown truncate open read write statfs flush release fsync setxattr getxattr listxattr removexattr opendir readdir releasedir fsyncdir init destroy access create ftruncate fgetattr utimens
+@var{mountpoint} is the path to mount the filesystem. ex. ``/tmp/fs/''
+
+@var{args} is the FUSE's boot parameter. Provide a parsed argv in the string list format. Default is '(``'' ``-f'' ``-s'' ``-d'' mountpoint).
+
+@var{multithreaded} is a boolean value to enable multithread (@code{#t}) or disable it (@code{#f}). Default is @code{#f}.
+
+For each rest keyword arguments, provide your callback functions coresponds to the system calls.
+@end defun
+
+@deftp {Class} <sys-stat>
+@clindex sys-stat
+Normally you can't write the slots of @var{<sys-stat>} in the Scheme side.
+However, following functions enable you to write them (from the C side),
+maybe useful for the @var{getattr} of this library.
+@end deftp
+
+@defun sys-stat->file-type-set! stat::<sys-stat> v::<symbol> -> <void>
+@end defun
+
+@defun sys-stat->perm-set! stat::<sys-stat> v::<int> -> <void>
+@end defun
+
+@defun sys-stat->mode-set! stat::<sys-stat> v::<int> -> <void>
+@end defun
+
+@defun sys-stat->ino-set! stat::<sys-stat> v::<int> -> <void>
+@end defun
+
+@defun sys-stat->dev-set! stat::<sys-stat> v::<int> -> <void>
+@end defun
+
+@defun sys-stat->rdev-set! stat::<sys-stat> v::<int> -> <void>
+@end defun
+
+@defun sys-stat->nlink-set! stat::<sys-stat> v::<int> -> <void>
+@end defun
+
+@defun sys-stat->size-set! stat::<sys-stat> v::<int> -> <void>
+@end defun
+
+@defun sys-stat->uid-set! stat::<sys-stat> v::<int> -> <void>
+@end defun
+
+@defun sys-stat->gid-set! stat::<sys-stat> v::<int> -> <void>
+@end defun
+
+@defun sys-stat->atime-set! stat::<sys-stat> v::<int> -> <void>
+@end defun
+
+@defun sys-stat->mtime-set! stat::<sys-stat> v::<int> -> <void>
+@end defun
+
+@defun sys-stat->ctime-set! stat::<sys-stat> v::<int> -> <void>
+@end defun
+
+@deftp {Builtin Class} <sys-statvfs>
+@clindex sys-statvfs
+An object that represents @code{struct statvfs}, information of the mounted 
+the filesystem.   It has the following slots.
+@defivar {<sys-statvfs>} f_bsize
+file system block size
+@end defivar
+
+@defivar {<sys-statvfs>} f_frsize
+fragment size
+@end defivar
+
+@defivar {<sys-statvfs>} f_blocks
+size of fs in f_frsize units
+@end defivar
+
+@defivar {<sys-statvfs>} f_bfree
+# free blocks
+@end defivar
+
+@defivar {<sys-statvfs>} f_bavail
+# free blocks for non-root
+@end defivar
+
+@defivar {<sys-statvfs>} f_files
+# inodes
+@end defivar
+
+@defivar {<sys-statvfs>} f_ffree
+# free inodes
+@end defivar
+
+@defivar {<sys-statvfs>} f_favail
+# free inodes for non-root
+@end defivar
+
+@defivar {<sys-statvfs>} f_fsid
+file system ID
+@end defivar
+
+@defivar {<sys-statvfs>} f_flag
+mount flags
+@end defivar
+
+@defivar {<sys-statvfs>} f_namemax
+maximum filename length
+@end defivar
+
+@end deftp
+
+@deftp {Class} <fuse-file-info>
+@clindex fuse-file-info
+@defivar {<fuse-file-info>} flags
+@end defivar
+
+@defivar {<fuse-file-info>} writepage
+@end defivar
+
+@defivar {<fuse-file-info>} direct_io
+@end defivar
+
+@defivar {<fuse-file-info>} keep_cache
+@end defivar
+
+@defivar {<fuse-file-info>} flush
+@end defivar
+
+@defivar {<fuse-file-info>} fh
+@end defivar
+
+@defivar {<fuse-file-info>} lock_owner
+@end defivar
+
+@end deftp
+
+@defun fuse-file-info->flags fi::<fuse-file-info> -> <int>
+@end defun
+
+@defun fuse-file-info->flags-set! fi::<fuse-file-info> v::<int> -> <void>
+@end defun
+
+@defun fuse-file-info->writepage fi::<fuse-file-info> -> <int>
+@end defun
+
+@defun fuse-file-info->writepage-set! fi::<fuse-file-info> v::<int> -> <void>
+@end defun
+
+@defun fuse-file-info->direct_io fi::<fuse-file-info> -> <boolean>
+@end defun
+
+@defun fuse-file-info->direct_io-set! fi::<fuse-file-info> v::<boolean> -> <void>
+@end defun
+
+@defun fuse-file-info->keep_cache fi::<fuse-file-info> -> <boolean>
+@end defun
+
+@defun fuse-file-info->keep_cache-set! fi::<fuse-file-info> v::<boolean> -> <void>
+@end defun
+
+@defun fuse-file-info->flush fi::<fuse-file-info> -> <boolean>
+@end defun
+
+@defun fuse-file-info->flush-set! fi::<fuse-file-info> v::<boolean> -> <void>
+@end defun
+
+@defun fuse-file-info->fh fi::<fuse-file-info> -> <int>
+@end defun
+
+@defun fuse-file-info->fh-set! fi::<fuse-file-info> v::<int> -> <void>
+@end defun
+
+@defun fuse-file-info->lock_owner fi::<fuse-file-info> -> <int>
+@end defun
+
+@defun fuse-file-info->lock_owner-set! fi::<fuse-file-info> v::<int> -> <void>
+@end defun
+
+@bye

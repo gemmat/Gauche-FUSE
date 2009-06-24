@@ -1,0 +1,231 @@
+;;;
+;;; fuselib.stub - glue functions for FUSE
+;;;
+;;;   Copyright (c) 2008 Teruaki Gemma <teruakigemma@gmail.com>
+;;;
+;;;   Redistribution and use in source and binary forms, with or without
+;;;   modification, are permitted provided that the following conditions
+;;;   are met:
+;;;
+;;;   1. Redistributions of source code must retain the above copyright
+;;;      notice, this list of conditions and the following disclaimer.
+;;;
+;;;   2. Redistributions in binary form must reproduce the above copyright
+;;;      notice, this list of conditions and the following disclaimer in the
+;;;      documentation and/or other materials provided with the distribution.
+;;;
+;;;   3. Neither the name of the authors nor the names of its contributors
+;;;      may be used to endorse or promote products derived from this
+;;;      software without specific prior written permission.
+;;;
+;;;   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+;;;   "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+;;;   LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+;;;   A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+;;;   OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+;;;   SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
+;;;   TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+;;;   PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+;;;   LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+;;;   NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+;;;   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+;;;
+;;;  $Id: fuselib.stub 29 2008-11-23 18:50:11Z teruakigemma $
+;;;
+
+"
+#include \"fuse.h\"
+"
+
+(define-cproc test-fuse ()
+  (return "test_fuse"))
+
+(define-type <fuse> "struct fuse*" "fuse"
+  "FUSE_P" "FUSE_UNBOX" "FUSE_BOX")
+
+(define-type <fuse-cmd> "struct fuse_cmd *" "fuse-cmd"
+  "FUSECMD_P" "FUSECMD_UNBOX" "FUSECMD_BOX")
+
+(define-type <fuse-file-info> "struct fuse_file_info *" "fuse-file-info"
+  "FUSEFILEINFO_P" "FUSEFILEINFO_UNBOX" "FUSEFILEINFO_BOX")
+
+(define-type <sys-statvfs> "ScmSysStatvfs*")
+
+(define-cproc sys-statvfs (path::<const-cstring>)
+  (call "Scm_SysStatvfs"))
+
+(define-cproc fuse-mainsetup (args::<list>
+			      mountpoint
+			      getattr::<boolean>
+			      readlink::<boolean>
+			      mknod::<boolean>
+			      mkdir::<boolean>
+			      unlink::<boolean>
+			      rmdir::<boolean>
+			      symlink::<boolean>
+			      rename::<boolean>
+			      link::<boolean>
+			      chmod::<boolean>
+			      chown::<boolean>
+			      truncate::<boolean>
+			      open::<boolean>
+			      read::<boolean>
+			      write::<boolean>
+			      statfs::<boolean>
+			      flush::<boolean>
+			      release::<boolean>
+			      fsync::<boolean>
+			      setxattr::<boolean>
+			      getxattr::<boolean>
+			      listxattr::<boolean>
+			      removexattr::<boolean>
+			      opendir::<boolean>
+			      readdir::<boolean>
+			      releasedir::<boolean>
+			      fsyncdir::<boolean>
+			      init::<boolean>
+			      destroy::<boolean>
+			      access::<boolean>
+			      create::<boolean>
+			      ftruncate::<boolean>
+			      fgetattr::<boolean>
+			      utimens::<boolean>)
+  (call <fuse> "fuse_mainsetup"))
+
+(define-cproc fuse-exited (fuse::<fuse>)
+  (call <int> "fuse_exited"))
+
+(define-cproc fuse-read-cmd (fuse::<fuse>)
+  (call <fuse-cmd> "fuse_read_cmd"))
+
+(define-cproc fuse-process-cmd (fuse::<fuse> cmd::<fuse-cmd>)
+  (call <void> "fuse_process_cmd"))
+
+(define-cproc fuse-loop (f::<fuse>)
+  (call <void> "fuse_loop"))
+
+(define-cproc fuse-loop-mt (f::<fuse>)
+  (call <void> "fuse_loop_mt"))
+
+(define-cproc fuse-teardown (f::<fuse> mountpoint::<string>)
+  (body <void> "fuse_teardown(f,Scm_GetString(mountpoint));"))
+
+(define-cproc sys-stat->file-type-set! (obj v)
+  (body <void> "
+   struct stat *stat = &((ScmSysStat*)(obj))->statrec;
+   if (SCM_EQ(v,SCM_INTERN(\"directory\"))) stat->st_mode |= S_IFDIR;
+   if (SCM_EQ(v,SCM_INTERN(\"regular\"))) stat->st_mode |= S_IFREG;
+   if (SCM_EQ(v,SCM_INTERN(\"character\"))) stat->st_mode |= S_IFCHR;
+   if (SCM_EQ(v,SCM_INTERN(\"block\"))) stat->st_mode |= S_IFBLK;
+   if (SCM_EQ(v,SCM_INTERN(\"fifo\"))) stat->st_mode |= S_IFIFO;
+   #ifdef S_ISLNK
+     if (SCM_EQ(v,SCM_INTERN(\"symlink\"))) stat->st_mode |= S_IFLNK;
+   #endif
+   #ifdef S_ISSOCK
+     if (SCM_EQ(v,SCM_INTERN(\"socket\"))) stat->st_mode |= S_IFSOCK;
+   #endif
+  "))
+
+(define-cproc sys-stat->perm-set! (obj v::<int>)
+  (body <void> "
+  struct stat *stat = &((ScmSysStat*)(obj))->statrec;
+  stat->st_mode = (stat->st_mode & 0xFE00) | v;
+  "))
+
+(define-cproc sys-stat->mode-set! (obj v::<int>)
+  (body <void> "
+  struct stat *stat = &((ScmSysStat*)(obj))->statrec;
+  stat->st_mode = v;
+  "))
+
+(define-cproc sys-stat->ino-set! (obj v::<int>)
+  (body <void> "
+  struct stat *stat = &((ScmSysStat*)(obj))->statrec;
+  stat->st_ino = v;
+  "))
+
+(define-cproc sys-stat->dev-set! (obj v::<int>)
+  (body <void> "
+  struct stat *stat = &((ScmSysStat*)(obj))->statrec;
+  stat->st_dev = v;
+  "))
+
+(define-cproc sys-stat->rdev-set! (obj v::<int>)
+  (body <void> "
+  struct stat *stat = &((ScmSysStat*)(obj))->statrec;
+  stat->st_rdev = v;
+  "))
+
+(define-cproc sys-stat->nlink-set! (obj v::<int>)
+  (body <void> "
+  struct stat *stat = &((ScmSysStat*)(obj))->statrec;
+  stat->st_nlink = v;
+  "))
+
+(define-cproc sys-stat->size-set! (obj v::<integer>)
+  (body <void> "
+  struct stat *stat = &((ScmSysStat*)(obj))->statrec;
+  stat->st_size = Scm_IntegerToOffset(v);
+  "))
+
+(define-cproc sys-stat->uid-set! (obj v::<int>)
+  (body <void> "
+  struct stat *stat = &((ScmSysStat*)(obj))->statrec;
+  stat->st_uid = v;
+  "))
+
+(define-cproc sys-stat->gid-set! (obj v::<int>)
+  (body <void> "
+  struct stat *stat = &((ScmSysStat*)(obj))->statrec;
+  stat->st_gid = v;
+  "))
+(define-cproc sys-stat->atime-set! (obj v)
+  (body <void> "
+  struct stat *stat = &((ScmSysStat*)(obj))->statrec;
+  stat->st_atime = Scm_GetSysTime(v);
+  "))
+
+(define-cproc sys-stat->mtime-set! (obj v)
+  (body <void> "
+  struct stat *stat = &((ScmSysStat*)(obj))->statrec;
+  stat->st_mtime = Scm_GetSysTime(v);
+  "))
+
+(define-cproc sys-stat->ctime-set! (obj v)
+  (body <void> "
+  struct stat *stat = &((ScmSysStat*)(obj))->statrec;
+  stat->st_ctime = Scm_GetSysTime(v);
+  "))
+
+(define-cproc fuse-file-info->flags (fi::<fuse-file-info>)
+  (expr <int> "fi->flags"))
+(define-cproc fuse-file-info->flags-set! (fi::<fuse-file-info> v::<int>)
+  (body <void> "fi->flags = v;"))
+(define-cproc fuse-file-info->writepage (fi::<fuse-file-info>)
+  (expr <int> "fi->writepage"))
+(define-cproc fuse-file-info->writepage-set! (fi::<fuse-file-info> v::<int>)
+  (body <void> "fi->writepage = v;"))
+(define-cproc fuse-file-info->direct_io (fi::<fuse-file-info>)
+  (expr <boolean> "fi->direct_io"))
+(define-cproc fuse-file-info->direct_io-set! (fi::<fuse-file-info> v::<boolean>)
+  (body <void> "fi->direct_io = (v)? 1 : 0;"))
+(define-cproc fuse-file-info->keep_cache (fi::<fuse-file-info>)
+  (expr <boolean> "fi->keep_cache"))
+(define-cproc fuse-file-info->keep_cache-set! (fi::<fuse-file-info> v::<boolean>)
+  (body <void> "fi->keep_cache = (v)? 1 : 0;"))
+(define-cproc fuse-file-info->flush (fi::<fuse-file-info>)
+  (expr <boolean> "fi->flush"))
+(define-cproc fuse-file-info->flush-set! (fi::<fuse-file-info> v::<boolean>)
+  (body <void> "fi->flush = (v)? 1 : 0;"))
+(define-cproc fuse-file-info->fh (fi::<fuse-file-info>)
+  (expr <ulong> "fi->fh"))
+(define-cproc fuse-file-info->fh-set! (fi::<fuse-file-info> v::<ulong>)
+  (body <void> "fi->fh = v;"))
+(define-cproc fuse-file-info->lock_owner (fi::<fuse-file-info>)
+  (expr <ulong> "fi->lock_owner"))
+(define-cproc fuse-file-info->lock_owner-set! (fi::<fuse-file-info> v::<ulong>)
+  (body <void> "fi->lock_owner = v;"))
+
+;; Local variables:
+;; mode: scheme
+;; end:

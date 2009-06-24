@@ -1,0 +1,780 @@
+@c COMMON
+input texinfo  @c -*-texinfo-*
+@comment %**start of header
+@c EN
+
+@setfilename fuse-refe.info
+@settitle Gauche-FUSE binding
+@dircategory The Algorithmic Language Scheme
+@direntry
+* Gauche-FUSE binding: (fuse-refe.info).	        Enabling you to write filesystems in the Scheme language..
+@end direntry
+@c JP
+
+@setfilename fuse-refj.info
+@settitle Gauche-FUSE
+@dircategory The Algorithmic Language Scheme
+@direntry
+* Gauche-FUSE binding: (fuse-refj.info).	        Scheme言語でファイルシステムを書けます。.
+@end direntry
+@documentencoding euc-jp
+@c COMMON
+@comment %**end of header
+
+@c $Id: $
+
+@c module and class index
+@defcodeindex md
+@defcodeindex cl
+
+@iftex
+@finalout
+@parskip 4pt plus 1pt
+@end iftex
+
+@titlepage
+@c EN
+
+@title Gauche-FUSE binding
+@subtitle version @VERSION@
+@author Teruaki Gemma (teruakigemma@@gmail.com)
+@c JP
+
+@title Gauche-FUSE 拡張ライブラリ
+@subtitle version @VERSION@
+@author 源馬 照明 (teruakigemma@@gmail.com)
+@c COMMON
+@page
+@vskip 0pt plus 1filll
+Copyright @copyright{} 2008 源馬 照明 (teruakigemma@@gmail.com)
+
+@end titlepage
+
+@node Top, fuse, (dir), (dir)
+
+@ifnottex
+@c EN
+This is a reference manual of Gauche-FUSE binding.
+This manual is for version @VERSION@.
+@c JP
+本書は、Gauche-FUSE 拡張ライブラリのリファレンスマニュアルです。
+バージョン@VERSION@に対応します。
+@c COMMON
+@end ifnottex
+
+@menu
+* fuse::
+@end menu
+
+@node fuse, Top, Top
+@chapter fuse
+@c NODE fuse
+
+@deftp {Module} fuse
+@mdindex fuse
+@c EN
+This is a Gauche extension module to use FUSE. This enable you to develop your own filesystem in the Scheme language, without learning kernel module programming.
+
+Callback functions correspond to the system call can tell FUSE its failure by two methods, to raise the <system-error> or to return a negative exact integer which inverted the @var{errno}.
+
+To represent @var{errno}, the following constants are defined.
+Each constant is bound to an exact integer representing the system's
+error number.  Note that the actual value may differ among systems,
+and some of these constants may not be defined on some systems.
+
+@c JP
+このモジュールは、GaucheからFUSE(Filesystem in Userspace)を使うための拡張ライブラリです。カーネル・モジュール・プログラミングを学ぶ必要なしに、フル機能のファイルシステムをScheme言語で書くことができます。
+
+システムコールに対するコールバック関数は、@code{<system-error>}例外を投げるか、errnoの符号を負にした正確整数値を関数の返り値とすることで、システムコールの失敗をFUSEに伝えることができます。
+
+@var{errno}を表現するのに、以下の定義済み定数が使えます。各定数はシス
+テムエラーを表現する非負正確整数に束縛されています。実際の値はシステム
+ごとに違い、またシステムによっては定義されていない定数があるということ
+に注意してください。
+
+@c COMMON
+@example
+E2BIG             EHOSTDOWN         ENETDOWN          ENXIO
+EACCES            EHOSTUNREACH      ENETRESET         EOPNOTSUPP
+EADDRINUSE        EIDRM             ENETUNREACH       EOVERFLOW
+EADDRNOTAVAIL     EILSEQ            ENFILE            EPERM
+EADV              EINPROGRESS       ENOANO            EPFNOSUPPORT
+EAFNOSUPPORT      EINTR             ENOBUFS           EPIPE
+EAGAIN            EINVAL            ENOCSI            EPROTO
+EALREADY          EIO               ENODATA           EPROTONOSUPPORT
+EBADE             EISCONN           ENODEV            EPROTOTYPE
+EBADF             EISDIR            ENOENT            ERANGE
+EBADFD            EISNAM            ENOEXEC           EREMCHG
+EBADMSG           EKEYEXPIRED       ENOKEY            EREMOTE
+EBADR             EKEYREJECTED      ENOLCK            EREMOTEIO
+EBADRQC           EKEYREVOKED       ENOLINK           ERESTART
+EBADSLT           EL2HLT            ENOMEDIUM         EROFS
+EBFONT            EL2NSYNC          ENOMEM            ESHUTDOWN
+EBUSY             EL3HLT            ENOMSG            ESOCKTNOSUPPORT
+ECANCELED         EL3RST            ENONET            ESPIPE
+ECHILD            ELIBACC           ENOPKG            ESRCH
+ECHRNG            ELIBBAD           ENOPROTOOPT       ESRMNT
+ECOMM             ELIBEXEC          ENOSPC            ESTALE
+ECONNABORTED      ELIBMAX           ENOSR             ESTRPIPE
+ECONNREFUSED      ELIBSCN           ENOSTR            ETIME
+ECONNRESET        ELNRNG            ENOSYS            ETIMEDOUT
+EDEADLK           ELOOP             ENOTBLK           ETOOMANYREFS
+EDEADLOCK         EMEDIUMTYPE       ENOTCONN          ETXTBSY
+EDESTADDRREQ      EMFILE            ENOTDIR           EUCLEAN
+EDOM              EMLINK            ENOTEMPTY         EUNATCH
+EDOTDOT           EMSGSIZE          ENOTNAM           EUSERS
+EDQUOT            EMULTIHOP         ENOTSOCK          EWOULDBLOCK
+EEXIST            ENAMETOOLONG      ENOTTY            EXDEV
+EFAULT            ENAVAIL           ENOTUNIQ          EXFULL
+EFBIG
+@end example
+@end deftp
+
+@defun getattr path::<string> -> <sys-stat>
+@c EN
+Returns a @code{<sys-stat>} object as the file infomation of @var{path}.
+If @var{path} is a symbolic link, returns a stat of the file the link points.
+@c JP
+与えられたパス名@var{path}で示されるファイルの情報を@code{<sys-stat>}オブジェクトで返します。
+@var{path}がシンボリックリンクであった場合はリンクの指す先のファイルに関する情報を返します。
+@c COMMON
+@end defun
+
+@defun readlink path::<string> -> <string>
+@c EN
+If a file specified by @var{path} is a symbolic link, its content is
+returned.  If @var{path} doesn't exist or is not a symbolic link, signal
+an error.
+@c JP
+@var{path}で示されるファイルがシンボリックリンクならば、それが指すパスを返します。
+もし@var{path}が存在しなかったり、シンボリックリンクでなければ、エラーを通知します。
+@c COMMON
+@end defun
+
+@defun mknod path::<string> mode::<int> rdev::<int> -> <void>
+@c EN
+Create the filesystem node(file, device special file or named fifo) named @var{path} with the mode @var{mode} and the device number @var{rdev}.
+@c JP
+@var{path}という名前のファイルシステム・ノード(ファイル、デバイススペシャルファイル、名前付きパイプ)を、属性@var{mode}とデバイス番号@var{rdev}で作成します。
+@c COMMON
+@end defun
+
+@defun mkdir pathname::<string> mode::<int> -> <void>
+@c EN
+Makes a directory @var{pathname} with mode @var{mode}.
+@c JP
+ディレクトリ@var{pathname}をモード@var{mode}で作成します。
+@c COMMON
+@end defun
+
+@defun unlink pathname::<string> -> <void>
+@c EN
+Removes @var{pathname}.
+@c JP
+@var{pathname}で示されるファイルを消去します。
+@c COMMON
+@end defun
+
+@defun rmdir pathname::<string> -> <void>
+@c EN
+Removes a directory @var{pathname}.  The directory must be empty.
+@c JP
+ディレクトリ@var{pathname}を消去します。ディレクトリは空でなければなりません。
+@c COMMON
+@end defun
+
+@defun symlink existing::<string> new::<string> -> <void>
+@c EN
+Creates a symbolic link named @var{new} to the pathname @var{existing}.
+@c JP
+@var{existing}を指す@var{new}という名のシンボリックを作成します。
+@c COMMON
+@end defun
+
+@defun rename old::<string> new::<string> -> <void>
+@c EN
+Renames a file @var{old} to @var{new}.
+@c JP
+ファイル@var{old}を@var{new}にリネームします。
+@c COMMON
+@end defun
+
+@defun link existing::<string> new::<string> -> <void>
+@c EN
+Creates a hard link named @var{new} to the existing file @var{existing}.
+@c JP
+既存のファイル@var{existing}に対し、@var{new}という名のハードリンクを作成します。
+@c COMMON
+@end defun
+
+@defun chmod path::<string> mode::<int> -> <void>
+@c EN
+Change the mode of the file named @var{path} to @var{mode}.
+@var{mode} is a small positive integer whose lower 9 bits
+specifies POSIX style permission.
+@c JP
+名前@var{path}を持つファイルのパーミッションビットを@var{mode}に変更します。
+@var{mode}は小さな正の正確な整数で、POSIXスタイルのパーミッションビットマスク
+です。
+@c COMMON
+@end defun
+
+@defun chown path::<string> owner-id::<int> group-id::<int> -> <void>
+@c EN
+Change the owner and/or group of the file named @var{path}
+to @var{owner-id} and @var{group-id} respectively.
+@var{owner-id} and @var{group-id} are an exact integer.
+@c JP
+ファイル@var{path}のオーナーとグループを@var{owner-id}と@var{gruop-id}
+で示されるものに変更します。@var{owner-id}と@var{gruop-id}は正確な整数です。
+@c COMMON
+@end defun
+
+@defun truncate path::<string> length::<int> -> <void>
+@c EN
+Truncates a regular file named by @var{path} to a size of @var{length} bytes.
+If the file is larger than @var{length} bytes, the extra data is discarded.
+If the file is smaller than that, zero is padded.
+@c JP
+@var{path}によって指定される通常ファイルの長さを@var{length}にします。
+ファイルが@var{length}より長かった場合、余分なデータは捨てられます。
+ファイルが@var{length}より短かった場合、残りの部分にはゼロが詰められます。
+@c COMMON
+@end defun
+
+@defun open path::<string> file-info::<fuse-file-info> -> <void>
+@c EN
+Create a file named by @var{path}.
+@c JP
+@var{path}という名前のファイルを作成します。
+@c COMMON
+@end defun
+
+@defun read path::<string> outp::<output port> size::<int> offset::<int> file-info::<fuse-file-info> -> <int>
+@c EN
+Output the content of the file named @var{path} to @var{outp} output port with @var{size} bytes length and @var{offset} bytes offset.
+Return the byte length you readed as the file content.
+@c JP
+@var{path}という名前のファイルの内容を、@var{outp}出力ポートに、@var{size}バイトの長さで、@var{offset}のオフセットで、出力してください。
+ファイルの内容として読み込んだバイトの長さを返してください。
+@c COMMON
+@end defun
+
+@defun write path::<string> inp::<input port> size::<int> offset::<int> file-info::<fuse-file-info> -> <int>
+@c EN
+Write the content of @var{inp} input port to the file named @var{path} with @var{size} bytes length and @var{offset} bytes offset.
+Return the byte length you wrote as the file content.
+@c JP
+@var{path}という名前のファイルへ、@var{inp}入力ポートの内容を、@var{size}バイトの長さで、@var{offset}のオフセットで、書き込んでください。
+ファイルの内容として書き込んだバイトの長さを返してください。
+@c COMMON
+@end defun
+
+@defun statfs path::<string> -> <sys-statvfs>
+@c EN
+Returns a @code{<sys-statvfs>} object as the information about a mounted file system.
+@var{path} is the pathname of any file within the mounted filesystem.
+@c JP
+@var{path}という名前のファイルがある、マウントされたファイルシステムについての情報を、
+@code{<sys-statvfs>}オブジェクトで返します。
+@c COMMON
+@end defun
+
+@defun flush path::<string> file-info::<fuse-file-info> -> <void>
+@c EN
+Flush the write-buffer of the file named @var{path}.
+This method is optional and can safely be left unimplemented.
+@c JP
+@var{path}という名前のファイルへの出力バッファをフラッシュします。
+これはオプショナルで、実装しなくても大丈夫です。
+@c COMMON
+@end defun
+
+@defun release path::<string> file-info::<fuse-file-info> -> <void>
+@c EN
+Release the file named @var{path}.
+This method is optional and can safely be left unimplemented.
+@c JP
+@var{path}という名前のファイルをリリースします。
+これはオプショナルで、実装しなくても大丈夫です。
+@c COMMON
+@end defun
+
+@defun fsync path::<string> datasync?::<boolean> file-info::<fuse-file-info> -> <void>
+@c EN
+Fsync the file named @var{path}.
+This method is optional and can safely be left unimplemented.
+@c JP
+@var{path}という名前のファイルをfsyncします。
+これはオプショナルで、実装しなくても大丈夫です。
+@c COMMON
+@end defun
+
+@defun setxattr path::<string> name::<string> value::<string> flags::<int> -> <void>
+@c EN
+Set the extended file attributes of the file named @var{path} with @var{name}、@var{value}、@var{flags}.
+@c JP
+@var{path}という名前のファイルの拡張属性を、@var{name}、@var{value}、@var{flags}にセットします。
+@c COMMON
+@end defun
+
+@defun getxattr path::<string> name::<string> -> <string>
+@c EN
+Return the value of the extended file attributes at @var{name} in the string, of the file named @var{path}.
+@c JP
+@var{path}という名前のファイルの拡張属性の@var{name}の値を、文字列で返します。
+@c COMMON
+@end defun
+
+@defun listxattr path::<string> -> <string list>
+@c EN
+Return the value of the extended file attributes in the string list, of the file named @var{path}.
+@c JP
+@var{path}という名前のファイルの拡張属性を、文字列のリストで返します。
+@c COMMON
+@end defun
+
+@defun removexattr path::<string> name::<string> -> <void>
+@c EN
+Remove the value of the extended file attributes at @var{name}, of the file named @var{path}.
+@c JP
+@var{path}という名前のファイルの拡張属性の@var{name}の値を、削除します。
+@c COMMON
+@end defun
+
+@defun opendir path::<string> file-info::<fuse-file-info> -> <void>
+@c EN
+open the directory corresponding the directory @var{path}.
+@c JP
+@var{path}に対応するディレクトリを開きます。
+@c COMMON
+@end defun
+
+@defun readdir path::<string> file-info::<fuse-file-info> -> <string list>
+@c EN
+Returns a list of strings of the directory entries corresponding to the @var{path}. 
+The returned list is not sorted.  An error is signalled
+if @var{path} doesn't exists or is not a directory.
+@c JP
+@var{path}に対応するディレクトリの全エントリを文字列のリストとして返します。
+リストはソートされません。@var{path}が存在しなかったり、ディレクトリでなかった場合は
+エラーとなります。
+@c COMMON
+@end defun
+
+@defun releasedir path::<string> file-info::<fuse-file-info> -> <void>
+@c EN
+Release the directory corresponding to @var{path}.
+@c JP
+@var{path}に対応するディレクトリをリリースします。
+@end defun
+
+@defun fsyncdir path::<string> datasync?::<boolean> file-info::<fuse-file-info> -> <void>
+@c EN
+Fsync the directory corresponding to @var{path}.
+@c JP
+@var{path}に対応するディレクトリをfsyncします。
+@c COMMON
+@end defun
+
+@defun init <void> -> <void>
+@c EN
+A callback function when the filesystem is initted.
+@c JP
+ファイルシステムが初期化されるときのコールバックです。
+@c COMMON
+@end defun
+
+@defun destroy <void> -> <void>
+@c EN
+A callback function when the filesystem is destroyed.
+@c JP
+ファイルシステムが破棄されるときのコールバックです。
+@c COMMON
+@end defun
+
+@defun access path::<string> mask::<int> -> <boolean>
+@c EN
+Returns a boolean value of indicating whether access of @var{path}
+is allowed in @var{mask}.   This procedure signals an error
+@c JP
+@var{path}へのアクセスが
+@var{mask}に示されるモードで許可されているかどうかを示す真偽値を返します。
+@end defun
+
+@defun create path::<string> mode::<octat int> file-info::<fuse-file-info> -> <void>
+@c EN
+Create a file named by @var{path} with @var{mode} mode.
+@c JP
+@var{path}という名前のファイルをモード@var{mode}で作成します。
+@c COMMON
+@end defun
+
+@defun ftruncate path::<string> size::<int> file-info::<fuse-file-info> -> <void>
+@c EN
+Same to truncate, except, @var{file-info}.
+@c JP
+truncateと同じですが、@var{file-info}があります。
+@c COMMON
+@end defun
+
+@defun fgetattr path::<string> file-info::<fuse-file-info> -> <sys-stat>
+@c EN
+Same to getattr, except, @var{file-info}.
+@c JP
+getattrと同じですが、@var{file-info}があります。
+@c COMMON
+@end defun
+
+@defun utimens path::<string> atime::<int> mtime::<int> -> <void>
+@c EN
+Change the file's access time and modification time to @var{atime}
+and @var{mtime}, respectively.
+@c JP
+ファイルのアクセスタイムと変更タイムを@var{atime}と@var{mtime}が示す値にセットします。
+@c COMMON
+@end defun
+
+@defun start-fuse mountpoint::<string> &keyword args multithreaded::<boolean> getattr readlink mknod mkdir unlink rmdir symlink rename link chmod chown truncate open read write statfs flush release fsync setxattr getxattr listxattr removexattr opendir readdir releasedir fsyncdir init destroy access create ftruncate fgetattr utimens
+@c EN
+@var{mountpoint} is the path to mount the filesystem. ex. ``/tmp/fs/''
+
+@var{args} is the FUSE's boot parameter. Provide a parsed argv in the string list format. Default is '(``'' ``-f'' ``-s'' ``-d'' mountpoint).
+
+@var{multithreaded} is a boolean value to enable multithread (@code{#t}) or disable it (@code{#f}). Default is @code{#f}.
+
+For each rest keyword arguments, provide your callback functions coresponds to the system calls.
+@c JP
+@var{mountpoint}は、ファイルシステムをマウントするパスです。(``/tmp/fs/''など)
+
+@var{args}は、FUSEの起動オプションです。argvをパースしたものを、文字列のリストで渡してください。(デフォルトは'(``'' ``-f'' ``-s'' ``-d'' mountpoint))
+
+@var{multithreaded}は、真偽値で、マルチスレッドを有効(@code{#t})、無効(@code{#f})にします。デフォルトは@code{#f}です。
+
+残りのキーワード引数にはそれぞれ、システムコールに対応するコールバック関数を与えてください。
+@c COMMON
+@end defun
+
+@deftp {Class} <sys-stat>
+@clindex sys-stat
+@c EN
+Normally you can't write the slots of @var{<sys-stat>} in the Scheme side.
+However, following functions enable you to write them (from the C side),
+maybe useful for the @var{getattr} of this library.
+@c JP
+<sys-stat>オブジェクトのスロットはScheme側では書き込み不可ですが、
+このライブラリのgetattrのために、(C側から)書き込みする関数を用意しました。
+@c COMMON
+@end deftp
+
+@defun sys-stat->file-type-set! stat::<sys-stat> v::<symbol> -> <void>
+@c EN
+@c JP
+@c COMMON
+@end defun
+
+@defun sys-stat->perm-set! stat::<sys-stat> v::<int> -> <void>
+@c EN
+@c JP
+@c COMMON
+@end defun
+
+@defun sys-stat->mode-set! stat::<sys-stat> v::<int> -> <void>
+@c EN
+@c JP
+@c COMMON
+@end defun
+
+@defun sys-stat->ino-set! stat::<sys-stat> v::<int> -> <void>
+@c EN
+@c JP
+@c COMMON
+@end defun
+
+@defun sys-stat->dev-set! stat::<sys-stat> v::<int> -> <void>
+@c EN
+@c JP
+@c COMMON
+@end defun
+
+@defun sys-stat->rdev-set! stat::<sys-stat> v::<int> -> <void>
+@c EN
+@c JP
+@c COMMON
+@end defun
+
+@defun sys-stat->nlink-set! stat::<sys-stat> v::<int> -> <void>
+@c EN
+@c JP
+@c COMMON
+@end defun
+
+@defun sys-stat->size-set! stat::<sys-stat> v::<int> -> <void>
+@c EN
+@c JP
+@c COMMON
+@end defun
+
+@defun sys-stat->uid-set! stat::<sys-stat> v::<int> -> <void>
+@c EN
+@c JP
+@c COMMON
+@end defun
+
+@defun sys-stat->gid-set! stat::<sys-stat> v::<int> -> <void>
+@c EN
+@c JP
+@c COMMON
+@end defun
+
+@defun sys-stat->atime-set! stat::<sys-stat> v::<int> -> <void>
+@c EN
+@c JP
+@c COMMON
+@end defun
+
+@defun sys-stat->mtime-set! stat::<sys-stat> v::<int> -> <void>
+@c EN
+@c JP
+@c COMMON
+@end defun
+
+@defun sys-stat->ctime-set! stat::<sys-stat> v::<int> -> <void>
+@c EN
+@c JP
+@c COMMON
+@end defun
+
+@deftp {Builtin Class} <sys-statvfs>
+@clindex sys-statvfs
+@c EN
+An object that represents @code{struct statvfs}, information of the mounted 
+the filesystem.   It has the following slots.
+@c JP
+マウントされたファイルシステムの情報を表す、@code{struct statvfs}のラッパー
+オブジェクトです。以下に示すスロットを持ちます。
+@c COMMON
+@defivar {<sys-statvfs>} f_bsize
+@c EN
+file system block size
+@c JP
+ファイルシステムのブロックサイズ
+@c COMMON
+@end defivar
+
+@defivar {<sys-statvfs>} f_frsize
+@c EN
+fragment size
+@c JP
+フラグメントサイズ
+@c COMMON
+@end defivar
+
+@defivar {<sys-statvfs>} f_blocks
+@c EN
+size of fs in f_frsize units
+@c JP
+ファイルシステムのサイズ (f_frsize 単位)
+@c COMMON
+@end defivar
+
+@defivar {<sys-statvfs>} f_bfree
+@c EN
+# free blocks
+@c JP
+解放されているブロック数
+@c COMMON
+@end defivar
+
+@defivar {<sys-statvfs>} f_bavail
+@c EN
+# free blocks for non-root
+@c JP
+ルート以外の解放されているブロック数
+@c COMMON
+@end defivar
+
+@defivar {<sys-statvfs>} f_files
+@c EN
+# inodes
+@c JP
+inode 数
+@c COMMON
+@end defivar
+
+@defivar {<sys-statvfs>} f_ffree
+@c EN
+# free inodes
+@c JP
+解放されている inode の数
+@c COMMON
+@end defivar
+
+@defivar {<sys-statvfs>} f_favail
+@c EN
+# free inodes for non-root
+@c JP
+ルート以外の解放されている inode の数
+@c COMMON
+@end defivar
+
+@defivar {<sys-statvfs>} f_fsid
+@c EN
+file system ID
+@c JP
+ファイルシステム ID
+@c COMMON
+@end defivar
+
+@defivar {<sys-statvfs>} f_flag
+@c EN
+mount flags
+@c JP
+マウントフラグ
+@c COMMON
+@end defivar
+
+@defivar {<sys-statvfs>} f_namemax
+@c EN
+maximum filename length
+@c JP
+ファイル名の長さの最大値
+@c COMMON
+@end defivar
+
+@end deftp
+
+@deftp {Class} <fuse-file-info>
+@clindex fuse-file-info
+@c EN
+@c JP
+@c COMMON
+@defivar {<fuse-file-info>} flags
+@c EN
+@c JP
+@c COMMON
+@end defivar
+
+@defivar {<fuse-file-info>} writepage
+@c EN
+@c JP
+@c COMMON
+@end defivar
+
+@defivar {<fuse-file-info>} direct_io
+@c EN
+@c JP
+@c COMMON
+@end defivar
+
+@defivar {<fuse-file-info>} keep_cache
+@c EN
+@c JP
+@c COMMON
+@end defivar
+
+@defivar {<fuse-file-info>} flush
+@c EN
+@c JP
+@c COMMON
+@end defivar
+
+@defivar {<fuse-file-info>} fh
+@c EN
+@c JP
+@c COMMON
+@end defivar
+
+@defivar {<fuse-file-info>} lock_owner
+@c EN
+@c JP
+@c COMMON
+@end defivar
+
+@end deftp
+
+@defun fuse-file-info->flags fi::<fuse-file-info> -> <int>
+@c EN
+@c JP
+@c COMMON
+@end defun
+
+@defun fuse-file-info->flags-set! fi::<fuse-file-info> v::<int> -> <void>
+@c EN
+@c JP
+@c COMMON
+@end defun
+
+@defun fuse-file-info->writepage fi::<fuse-file-info> -> <int>
+@c EN
+@c JP
+@c COMMON
+@end defun
+
+@defun fuse-file-info->writepage-set! fi::<fuse-file-info> v::<int> -> <void>
+@c EN
+@c JP
+@c COMMON
+@end defun
+
+@defun fuse-file-info->direct_io fi::<fuse-file-info> -> <boolean>
+@c EN
+@c JP
+@c COMMON
+@end defun
+
+@defun fuse-file-info->direct_io-set! fi::<fuse-file-info> v::<boolean> -> <void>
+@c EN
+@c JP
+@c COMMON
+@end defun
+
+@defun fuse-file-info->keep_cache fi::<fuse-file-info> -> <boolean>
+@c EN
+@c JP
+@c COMMON
+@end defun
+
+@defun fuse-file-info->keep_cache-set! fi::<fuse-file-info> v::<boolean> -> <void>
+@c EN
+@c JP
+@c COMMON
+@end defun
+
+@defun fuse-file-info->flush fi::<fuse-file-info> -> <boolean>
+@c EN
+@c JP
+@c COMMON
+@end defun
+
+@defun fuse-file-info->flush-set! fi::<fuse-file-info> v::<boolean> -> <void>
+@c EN
+@c JP
+@c COMMON
+@end defun
+
+@defun fuse-file-info->fh fi::<fuse-file-info> -> <int>
+@c EN
+@c JP
+@c COMMON
+@end defun
+
+@defun fuse-file-info->fh-set! fi::<fuse-file-info> v::<int> -> <void>
+@c EN
+@c JP
+@c COMMON
+@end defun
+
+@defun fuse-file-info->lock_owner fi::<fuse-file-info> -> <int>
+@c EN
+@c JP
+@c COMMON
+@end defun
+
+@defun fuse-file-info->lock_owner-set! fi::<fuse-file-info> v::<int> -> <void>
+@c EN
+@c JP
+@c COMMON
+@end defun
+
+@bye

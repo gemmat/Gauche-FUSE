@@ -1,0 +1,18 @@
+[Requirements]
+
+- Gauche 0.8.14 or later.
+- FUSE 2.6 or later.
+  These can be downloaded from http://fuse.sourceforge.net/ .
+
+[Usage of sample programs]
+
+  $ mkdir /tmp/fs
+
+* Hello World file system
+  $ example/hello.scm /tmp/fs
+
+* Fusexmp file system
+  $ example/fusexmp.scm /tmp/fs
+
+* Outputz file system
+  $ example/outputz.scm -k=SECRET_KEY -m=/tmp/fs

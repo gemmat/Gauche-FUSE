@@ -1,0 +1,815 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html401/loose.dtd">
+<html>
+<!-- Created on November, 25 2008 by texi2html 1.78 -->
+<!--
+Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
+            Karl Berry  <karl@freefriends.org>
+            Olaf Bachmann <obachman@mathematik.uni-kl.de>
+            and many others.
+Maintained by: Many creative people.
+Send bugs and suggestions to <texi2html-bug@nongnu.org>
+
+-->
+<head>
+<title>Gauche-FUSE binding</title>
+
+<meta name="description" content="Gauche-FUSE binding">
+<meta name="keywords" content="Gauche-FUSE binding">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="texi2html 1.78">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+pre.display {font-family: serif}
+pre.format {font-family: serif}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: serif; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: serif; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.roman {font-family:serif; font-weight:normal;}
+span.sansserif {font-family:sans-serif; font-weight:normal;}
+ul.toc {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+
+<a name="Top"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[Contents]</td>
+<td valign="middle" align="left">[Index]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h1 class="settitle">Gauche-FUSE binding
+</h1>
+
+<p>This is a reference manual of Gauche-FUSE binding.
+This manual is for version 1.0.
+</p>
+<table class="menu" border="0" cellspacing="0">
+<tr><td align="left" valign="top"><a href="#SEC1">1. fuse</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+</table>
+
+<hr size="1">
+<a name="fuse"></a>
+<a name="SEC1"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#Top" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[ &gt; ]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[ &lt;&lt; ]</td>
+<td valign="middle" align="left">[<a href="#Top" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[ &gt;&gt; ]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[Contents]</td>
+<td valign="middle" align="left">[Index]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h1 class="chapter"> 1. fuse </h1>
+
+<dl>
+<dt><u>Module:</u> <b>fuse</b>
+<a name="IDX1"></a>
+</dt>
+<dd><p>This is a Gauche extension module to use FUSE. This enable you to develop your own filesystem in the Scheme language, without learning kernel module programming.
+</p>
+<p>Callback functions correspond to the system call can tell FUSE its failure by two methods, to raise the &lt;system-error&gt; or to return a negative exact integer which inverted the <var>errno</var>.
+</p>
+<p>To represent <var>errno</var>, the following constants are defined.
+Each constant is bound to an exact integer representing the system's
+error number.  Note that the actual value may differ among systems,
+and some of these constants may not be defined on some systems.
+</p>
+<table><tr><td>&nbsp;</td><td><pre class="example">E2BIG             EHOSTDOWN         ENETDOWN          ENXIO
+EACCES            EHOSTUNREACH      ENETRESET         EOPNOTSUPP
+EADDRINUSE        EIDRM             ENETUNREACH       EOVERFLOW
+EADDRNOTAVAIL     EILSEQ            ENFILE            EPERM
+EADV              EINPROGRESS       ENOANO            EPFNOSUPPORT
+EAFNOSUPPORT      EINTR             ENOBUFS           EPIPE
+EAGAIN            EINVAL            ENOCSI            EPROTO
+EALREADY          EIO               ENODATA           EPROTONOSUPPORT
+EBADE             EISCONN           ENODEV            EPROTOTYPE
+EBADF             EISDIR            ENOENT            ERANGE
+EBADFD            EISNAM            ENOEXEC           EREMCHG
+EBADMSG           EKEYEXPIRED       ENOKEY            EREMOTE
+EBADR             EKEYREJECTED      ENOLCK            EREMOTEIO
+EBADRQC           EKEYREVOKED       ENOLINK           ERESTART
+EBADSLT           EL2HLT            ENOMEDIUM         EROFS
+EBFONT            EL2NSYNC          ENOMEM            ESHUTDOWN
+EBUSY             EL3HLT            ENOMSG            ESOCKTNOSUPPORT
+ECANCELED         EL3RST            ENONET            ESPIPE
+ECHILD            ELIBACC           ENOPKG            ESRCH
+ECHRNG            ELIBBAD           ENOPROTOOPT       ESRMNT
+ECOMM             ELIBEXEC          ENOSPC            ESTALE
+ECONNABORTED      ELIBMAX           ENOSR             ESTRPIPE
+ECONNREFUSED      ELIBSCN           ENOSTR            ETIME
+ECONNRESET        ELNRNG            ENOSYS            ETIMEDOUT
+EDEADLK           ELOOP             ENOTBLK           ETOOMANYREFS
+EDEADLOCK         EMEDIUMTYPE       ENOTCONN          ETXTBSY
+EDESTADDRREQ      EMFILE            ENOTDIR           EUCLEAN
+EDOM              EMLINK            ENOTEMPTY         EUNATCH
+EDOTDOT           EMSGSIZE          ENOTNAM           EUSERS
+EDQUOT            EMULTIHOP         ENOTSOCK          EWOULDBLOCK
+EEXIST            ENAMETOOLONG      ENOTTY            EXDEV
+EFAULT            ENAVAIL           ENOTUNIQ          EXFULL
+EFBIG
+</pre></td></tr></table>
+</dd></dl>
+
+<dl>
+<dt><u>Function:</u> <b>getattr</b><i> path::&lt;string&gt; -&gt; &lt;sys-stat&gt;</i>
+<a name="IDX2"></a>
+</dt>
+<dd><p>Returns a <code>&lt;sys-stat&gt;</code> object as the file infomation of <var>path</var>.
+If <var>path</var> is a symbolic link, returns a stat of the file the link points.
+</p></dd></dl>
+
+<dl>
+<dt><u>Function:</u> <b>readlink</b><i> path::&lt;string&gt; -&gt; &lt;string&gt;</i>
+<a name="IDX3"></a>
+</dt>
+<dd><p>If a file specified by <var>path</var> is a symbolic link, its content is
+returned.  If <var>path</var> doesn't exist or is not a symbolic link, signal
+an error.
+</p></dd></dl>
+
+<dl>
+<dt><u>Function:</u> <b>mknod</b><i> path::&lt;string&gt; mode::&lt;int&gt; rdev::&lt;int&gt; -&gt; &lt;void&gt;</i>
+<a name="IDX4"></a>
+</dt>
+<dd><p>Create the filesystem node(file, device special file or named fifo) named <var>path</var> with the mode <var>mode</var> and the device number <var>rdev</var>.
+</p></dd></dl>
+
+<dl>
+<dt><u>Function:</u> <b>mkdir</b><i> pathname::&lt;string&gt; mode::&lt;int&gt; -&gt; &lt;void&gt;</i>
+<a name="IDX5"></a>
+</dt>
+<dd><p>Makes a directory <var>pathname</var> with mode <var>mode</var>.
+</p></dd></dl>
+
+<dl>
+<dt><u>Function:</u> <b>unlink</b><i> pathname::&lt;string&gt; -&gt; &lt;void&gt;</i>
+<a name="IDX6"></a>
+</dt>
+<dd><p>Removes <var>pathname</var>.
+</p></dd></dl>
+
+<dl>
+<dt><u>Function:</u> <b>rmdir</b><i> pathname::&lt;string&gt; -&gt; &lt;void&gt;</i>
+<a name="IDX7"></a>
+</dt>
+<dd><p>Removes a directory <var>pathname</var>.  The directory must be empty.
+</p></dd></dl>
+
+<dl>
+<dt><u>Function:</u> <b>symlink</b><i> existing::&lt;string&gt; new::&lt;string&gt; -&gt; &lt;void&gt;</i>
+<a name="IDX8"></a>
+</dt>
+<dd><p>Creates a symbolic link named <var>new</var> to the pathname <var>existing</var>.
+</p></dd></dl>
+
+<dl>
+<dt><u>Function:</u> <b>rename</b><i> old::&lt;string&gt; new::&lt;string&gt; -&gt; &lt;void&gt;</i>
+<a name="IDX9"></a>
+</dt>
+<dd><p>Renames a file <var>old</var> to <var>new</var>.
+</p></dd></dl>
+
+<dl>
+<dt><u>Function:</u> <b>link</b><i> existing::&lt;string&gt; new::&lt;string&gt; -&gt; &lt;void&gt;</i>
+<a name="IDX10"></a>
+</dt>
+<dd><p>Creates a hard link named <var>new</var> to the existing file <var>existing</var>.
+</p></dd></dl>
+
+<dl>
+<dt><u>Function:</u> <b>chmod</b><i> path::&lt;string&gt; mode::&lt;int&gt; -&gt; &lt;void&gt;</i>
+<a name="IDX11"></a>
+</dt>
+<dd><p>Change the mode of the file named <var>path</var> to <var>mode</var>.
+<var>mode</var> is a small positive integer whose lower 9 bits
+specifies POSIX style permission.
+</p></dd></dl>
+
+<dl>
+<dt><u>Function:</u> <b>chown</b><i> path::&lt;string&gt; owner-id::&lt;int&gt; group-id::&lt;int&gt; -&gt; &lt;void&gt;</i>
+<a name="IDX12"></a>
+</dt>
+<dd><p>Change the owner and/or group of the file named <var>path</var>
+to <var>owner-id</var> and <var>group-id</var> respectively.
+<var>owner-id</var> and <var>group-id</var> are an exact integer.
+</p></dd></dl>
+
+<dl>
+<dt><u>Function:</u> <b>truncate</b><i> path::&lt;string&gt; length::&lt;int&gt; -&gt; &lt;void&gt;</i>
+<a name="IDX13"></a>
+</dt>
+<dd><p>Truncates a regular file named by <var>path</var> to a size of <var>length</var> bytes.
+If the file is larger than <var>length</var> bytes, the extra data is discarded.
+If the file is smaller than that, zero is padded.
+</p></dd></dl>
+
+<dl>
+<dt><u>Function:</u> <b>open</b><i> path::&lt;string&gt; file-info::&lt;fuse-file-info&gt; -&gt; &lt;void&gt;</i>
+<a name="IDX14"></a>
+</dt>
+<dd><p>Create a file named by <var>path</var>.
+</p></dd></dl>
+
+<dl>
+<dt><u>Function:</u> <b>read</b><i> path::&lt;string&gt; outp::&lt;output port&gt; size::&lt;int&gt; offset::&lt;int&gt; file-info::&lt;fuse-file-info&gt; -&gt; &lt;int&gt;</i>
+<a name="IDX15"></a>
+</dt>
+<dd><p>Output the content of the file named <var>path</var> to <var>outp</var> output port with <var>size</var> bytes length and <var>offset</var> bytes offset.
+Return the byte length you readed as the file content.
+</p></dd></dl>
+
+<dl>
+<dt><u>Function:</u> <b>write</b><i> path::&lt;string&gt; inp::&lt;input port&gt; size::&lt;int&gt; offset::&lt;int&gt; file-info::&lt;fuse-file-info&gt; -&gt; &lt;int&gt;</i>
+<a name="IDX16"></a>
+</dt>
+<dd><p>Write the content of <var>inp</var> input port to the file named <var>path</var> with <var>size</var> bytes length and <var>offset</var> bytes offset.
+Return the byte length you wrote as the file content.
+</p></dd></dl>
+
+<dl>
+<dt><u>Function:</u> <b>statfs</b><i> path::&lt;string&gt; -&gt; &lt;sys-statvfs&gt;</i>
+<a name="IDX17"></a>
+</dt>
+<dd><p>Returns a <code>&lt;sys-statvfs&gt;</code> object as the information about a mounted file system.
+<var>path</var> is the pathname of any file within the mounted filesystem.
+</p></dd></dl>
+
+<dl>
+<dt><u>Function:</u> <b>flush</b><i> path::&lt;string&gt; file-info::&lt;fuse-file-info&gt; -&gt; &lt;void&gt;</i>
+<a name="IDX18"></a>
+</dt>
+<dd><p>Flush the write-buffer of the file named <var>path</var>.
+This method is optional and can safely be left unimplemented.
+</p></dd></dl>
+
+<dl>
+<dt><u>Function:</u> <b>release</b><i> path::&lt;string&gt; file-info::&lt;fuse-file-info&gt; -&gt; &lt;void&gt;</i>
+<a name="IDX19"></a>
+</dt>
+<dd><p>Release the file named <var>path</var>.
+This method is optional and can safely be left unimplemented.
+</p></dd></dl>
+
+<dl>
+<dt><u>Function:</u> <b>fsync</b><i> path::&lt;string&gt; datasync?::&lt;boolean&gt; file-info::&lt;fuse-file-info&gt; -&gt; &lt;void&gt;</i>
+<a name="IDX20"></a>
+</dt>
+<dd><p>Fsync the file named <var>path</var>.
+This method is optional and can safely be left unimplemented.
+</p></dd></dl>
+
+<dl>
+<dt><u>Function:</u> <b>setxattr</b><i> path::&lt;string&gt; name::&lt;string&gt; value::&lt;string&gt; flags::&lt;int&gt; -&gt; &lt;void&gt;</i>
+<a name="IDX21"></a>
+</dt>
+<dd><p>Set the extended file attributes of the file named <var>path</var> with <var>name</var>、<var>value</var>、<var>flags</var>.
+</p></dd></dl>
+
+<dl>
+<dt><u>Function:</u> <b>getxattr</b><i> path::&lt;string&gt; name::&lt;string&gt; -&gt; &lt;string&gt;</i>
+<a name="IDX22"></a>
+</dt>
+<dd><p>Return the value of the extended file attributes at <var>name</var> in the string, of the file named <var>path</var>.
+</p></dd></dl>
+
+<dl>
+<dt><u>Function:</u> <b>listxattr</b><i> path::&lt;string&gt; -&gt; &lt;string list&gt;</i>
+<a name="IDX23"></a>
+</dt>
+<dd><p>Return the value of the extended file attributes in the string list, of the file named <var>path</var>.
+</p></dd></dl>
+
+<dl>
+<dt><u>Function:</u> <b>removexattr</b><i> path::&lt;string&gt; name::&lt;string&gt; -&gt; &lt;void&gt;</i>
+<a name="IDX24"></a>
+</dt>
+<dd><p>Remove the value of the extended file attributes at <var>name</var>, of the file named <var>path</var>.
+</p></dd></dl>
+
+<dl>
+<dt><u>Function:</u> <b>opendir</b><i> path::&lt;string&gt; file-info::&lt;fuse-file-info&gt; -&gt; &lt;void&gt;</i>
+<a name="IDX25"></a>
+</dt>
+<dd><p>open the directory corresponding the directory <var>path</var>.
+</p></dd></dl>
+
+<dl>
+<dt><u>Function:</u> <b>readdir</b><i> path::&lt;string&gt; file-info::&lt;fuse-file-info&gt; -&gt; &lt;string list&gt;</i>
+<a name="IDX26"></a>
+</dt>
+<dd><p>Returns a list of strings of the directory entries corresponding to the <var>path</var>. 
+The returned list is not sorted.  An error is signalled
+if <var>path</var> doesn't exists or is not a directory.
+</p></dd></dl>
+
+<dl>
+<dt><u>Function:</u> <b>releasedir</b><i> path::&lt;string&gt; file-info::&lt;fuse-file-info&gt; -&gt; &lt;void&gt;</i>
+<a name="IDX27"></a>
+</dt>
+<dd><p>Release the directory corresponding to <var>path</var>.
+Fsync the directory corresponding to <var>path</var>.
+</p></dd></dl>
+
+<dl>
+<dt><u>Function:</u> <b>init</b><i> &lt;void&gt; -&gt; &lt;void&gt;</i>
+<a name="IDX28"></a>
+</dt>
+<dd><p>A callback function when the filesystem is initted.
+</p></dd></dl>
+
+<dl>
+<dt><u>Function:</u> <b>destroy</b><i> &lt;void&gt; -&gt; &lt;void&gt;</i>
+<a name="IDX29"></a>
+</dt>
+<dd><p>A callback function when the filesystem is destroyed.
+</p></dd></dl>
+
+<dl>
+<dt><u>Function:</u> <b>access</b><i> path::&lt;string&gt; mask::&lt;int&gt; -&gt; &lt;boolean&gt;</i>
+<a name="IDX30"></a>
+</dt>
+<dd><p>Returns a boolean value of indicating whether access of <var>path</var>
+is allowed in <var>mask</var>.   This procedure signals an error
+Create a file named by <var>path</var> with <var>mode</var> mode.
+</p></dd></dl>
+
+<dl>
+<dt><u>Function:</u> <b>ftruncate</b><i> path::&lt;string&gt; size::&lt;int&gt; file-info::&lt;fuse-file-info&gt; -&gt; &lt;void&gt;</i>
+<a name="IDX31"></a>
+</dt>
+<dd><p>Same to truncate, except, <var>file-info</var>.
+</p></dd></dl>
+
+<dl>
+<dt><u>Function:</u> <b>fgetattr</b><i> path::&lt;string&gt; file-info::&lt;fuse-file-info&gt; -&gt; &lt;sys-stat&gt;</i>
+<a name="IDX32"></a>
+</dt>
+<dd><p>Same to getattr, except, <var>file-info</var>.
+</p></dd></dl>
+
+<dl>
+<dt><u>Function:</u> <b>utimens</b><i> path::&lt;string&gt; atime::&lt;int&gt; mtime::&lt;int&gt; -&gt; &lt;void&gt;</i>
+<a name="IDX33"></a>
+</dt>
+<dd><p>Change the file's access time and modification time to <var>atime</var>
+and <var>mtime</var>, respectively.
+</p></dd></dl>
+
+<dl>
+<dt><u>Function:</u> <b>start-fuse</b><i> mountpoint::&lt;string&gt; &amp;keyword args multithreaded::&lt;boolean&gt; getattr readlink mknod mkdir unlink rmdir symlink rename link chmod chown truncate open read write statfs flush release fsync setxattr getxattr listxattr removexattr opendir readdir releasedir fsyncdir init destroy access create ftruncate fgetattr utimens</i>
+<a name="IDX34"></a>
+</dt>
+<dd><p><var>mountpoint</var> is the path to mount the filesystem. ex. &ldquo;/tmp/fs/&rdquo;
+</p>
+<p><var>args</var> is the FUSE's boot parameter. Provide a parsed argv in the string list format. Default is '(&ldquo;&rdquo; &ldquo;-f&rdquo; &ldquo;-s&rdquo; &ldquo;-d&rdquo; mountpoint).
+</p>
+<p><var>multithreaded</var> is a boolean value to enable multithread (<code>#t</code>) or disable it (<code>#f</code>). Default is <code>#f</code>.
+</p>
+<p>For each rest keyword arguments, provide your callback functions coresponds to the system calls.
+</p></dd></dl>
+
+<dl>
+<dt><u>Class:</u> <b>&lt;sys-stat&gt;</b>
+<a name="IDX35"></a>
+</dt>
+<dd><a name="IDX36"></a>
+<p>Normally you can't write the slots of <var>&lt;sys-stat&gt;</var> in the Scheme side.
+However, following functions enable you to write them (from the C side),
+maybe useful for the <var>getattr</var> of this library.
+</p></dd></dl>
+
+<dl>
+<dt><u>Function:</u> <b>sys-stat-&gt;file-type-set!</b><i> stat::&lt;sys-stat&gt; v::&lt;symbol&gt; -&gt; &lt;void&gt;</i>
+<a name="IDX37"></a>
+</dt>
+</dl>
+
+<dl>
+<dt><u>Function:</u> <b>sys-stat-&gt;perm-set!</b><i> stat::&lt;sys-stat&gt; v::&lt;int&gt; -&gt; &lt;void&gt;</i>
+<a name="IDX38"></a>
+</dt>
+</dl>
+
+<dl>
+<dt><u>Function:</u> <b>sys-stat-&gt;mode-set!</b><i> stat::&lt;sys-stat&gt; v::&lt;int&gt; -&gt; &lt;void&gt;</i>
+<a name="IDX39"></a>
+</dt>
+</dl>
+
+<dl>
+<dt><u>Function:</u> <b>sys-stat-&gt;ino-set!</b><i> stat::&lt;sys-stat&gt; v::&lt;int&gt; -&gt; &lt;void&gt;</i>
+<a name="IDX40"></a>
+</dt>
+</dl>
+
+<dl>
+<dt><u>Function:</u> <b>sys-stat-&gt;dev-set!</b><i> stat::&lt;sys-stat&gt; v::&lt;int&gt; -&gt; &lt;void&gt;</i>
+<a name="IDX41"></a>
+</dt>
+</dl>
+
+<dl>
+<dt><u>Function:</u> <b>sys-stat-&gt;rdev-set!</b><i> stat::&lt;sys-stat&gt; v::&lt;int&gt; -&gt; &lt;void&gt;</i>
+<a name="IDX42"></a>
+</dt>
+</dl>
+
+<dl>
+<dt><u>Function:</u> <b>sys-stat-&gt;nlink-set!</b><i> stat::&lt;sys-stat&gt; v::&lt;int&gt; -&gt; &lt;void&gt;</i>
+<a name="IDX43"></a>
+</dt>
+</dl>
+
+<dl>
+<dt><u>Function:</u> <b>sys-stat-&gt;size-set!</b><i> stat::&lt;sys-stat&gt; v::&lt;int&gt; -&gt; &lt;void&gt;</i>
+<a name="IDX44"></a>
+</dt>
+</dl>
+
+<dl>
+<dt><u>Function:</u> <b>sys-stat-&gt;uid-set!</b><i> stat::&lt;sys-stat&gt; v::&lt;int&gt; -&gt; &lt;void&gt;</i>
+<a name="IDX45"></a>
+</dt>
+</dl>
+
+<dl>
+<dt><u>Function:</u> <b>sys-stat-&gt;gid-set!</b><i> stat::&lt;sys-stat&gt; v::&lt;int&gt; -&gt; &lt;void&gt;</i>
+<a name="IDX46"></a>
+</dt>
+</dl>
+
+<dl>
+<dt><u>Function:</u> <b>sys-stat-&gt;atime-set!</b><i> stat::&lt;sys-stat&gt; v::&lt;int&gt; -&gt; &lt;void&gt;</i>
+<a name="IDX47"></a>
+</dt>
+</dl>
+
+<dl>
+<dt><u>Function:</u> <b>sys-stat-&gt;mtime-set!</b><i> stat::&lt;sys-stat&gt; v::&lt;int&gt; -&gt; &lt;void&gt;</i>
+<a name="IDX48"></a>
+</dt>
+</dl>
+
+<dl>
+<dt><u>Function:</u> <b>sys-stat-&gt;ctime-set!</b><i> stat::&lt;sys-stat&gt; v::&lt;int&gt; -&gt; &lt;void&gt;</i>
+<a name="IDX49"></a>
+</dt>
+</dl>
+
+<dl>
+<dt><u>Builtin Class:</u> <b>&lt;sys-statvfs&gt;</b>
+<a name="IDX50"></a>
+</dt>
+<dd><a name="IDX51"></a>
+<p>An object that represents <code>struct statvfs</code>, information of the mounted 
+the filesystem.   It has the following slots.
+</p><dl>
+<dt><u>Instance Variable of &lt;sys-statvfs&gt;:</u> <b>f_bsize</b>
+<a name="IDX52"></a>
+</dt>
+<dd><p>file system block size
+</p></dd></dl>
+
+<dl>
+<dt><u>Instance Variable of &lt;sys-statvfs&gt;:</u> <b>f_frsize</b>
+<a name="IDX53"></a>
+</dt>
+<dd><p>fragment size
+</p></dd></dl>
+
+<dl>
+<dt><u>Instance Variable of &lt;sys-statvfs&gt;:</u> <b>f_blocks</b>
+<a name="IDX54"></a>
+</dt>
+<dd><p>size of fs in f_frsize units
+</p></dd></dl>
+
+<dl>
+<dt><u>Instance Variable of &lt;sys-statvfs&gt;:</u> <b>f_bfree</b>
+<a name="IDX55"></a>
+</dt>
+<dd><p># free blocks
+</p></dd></dl>
+
+<dl>
+<dt><u>Instance Variable of &lt;sys-statvfs&gt;:</u> <b>f_bavail</b>
+<a name="IDX56"></a>
+</dt>
+<dd><p># free blocks for non-root
+</p></dd></dl>
+
+<dl>
+<dt><u>Instance Variable of &lt;sys-statvfs&gt;:</u> <b>f_files</b>
+<a name="IDX57"></a>
+</dt>
+<dd><p># inodes
+</p></dd></dl>
+
+<dl>
+<dt><u>Instance Variable of &lt;sys-statvfs&gt;:</u> <b>f_ffree</b>
+<a name="IDX58"></a>
+</dt>
+<dd><p># free inodes
+</p></dd></dl>
+
+<dl>
+<dt><u>Instance Variable of &lt;sys-statvfs&gt;:</u> <b>f_favail</b>
+<a name="IDX59"></a>
+</dt>
+<dd><p># free inodes for non-root
+</p></dd></dl>
+
+<dl>
+<dt><u>Instance Variable of &lt;sys-statvfs&gt;:</u> <b>f_fsid</b>
+<a name="IDX60"></a>
+</dt>
+<dd><p>file system ID
+</p></dd></dl>
+
+<dl>
+<dt><u>Instance Variable of &lt;sys-statvfs&gt;:</u> <b>f_flag</b>
+<a name="IDX61"></a>
+</dt>
+<dd><p>mount flags
+</p></dd></dl>
+
+<dl>
+<dt><u>Instance Variable of &lt;sys-statvfs&gt;:</u> <b>f_namemax</b>
+<a name="IDX62"></a>
+</dt>
+<dd><p>maximum filename length
+</p></dd></dl>
+
+</dd></dl>
+
+<dl>
+<dt><u>Class:</u> <b>&lt;fuse-file-info&gt;</b>
+<a name="IDX63"></a>
+</dt>
+<dd><a name="IDX64"></a>
+<dl>
+<dt><u>Instance Variable of &lt;fuse-file-info&gt;:</u> <b>flags</b>
+<a name="IDX65"></a>
+</dt>
+</dl>
+
+<dl>
+<dt><u>Instance Variable of &lt;fuse-file-info&gt;:</u> <b>writepage</b>
+<a name="IDX66"></a>
+</dt>
+</dl>
+
+<dl>
+<dt><u>Instance Variable of &lt;fuse-file-info&gt;:</u> <b>direct_io</b>
+<a name="IDX67"></a>
+</dt>
+</dl>
+
+<dl>
+<dt><u>Instance Variable of &lt;fuse-file-info&gt;:</u> <b>keep_cache</b>
+<a name="IDX68"></a>
+</dt>
+</dl>
+
+<dl>
+<dt><u>Instance Variable of &lt;fuse-file-info&gt;:</u> <b>flush</b>
+<a name="IDX69"></a>
+</dt>
+</dl>
+
+<dl>
+<dt><u>Instance Variable of &lt;fuse-file-info&gt;:</u> <b>fh</b>
+<a name="IDX70"></a>
+</dt>
+</dl>
+
+<dl>
+<dt><u>Instance Variable of &lt;fuse-file-info&gt;:</u> <b>lock_owner</b>
+<a name="IDX71"></a>
+</dt>
+</dl>
+
+</dd></dl>
+
+<dl>
+<dt><u>Function:</u> <b>fuse-file-info-&gt;flags</b><i> fi::&lt;fuse-file-info&gt; -&gt; &lt;int&gt;</i>
+<a name="IDX72"></a>
+</dt>
+</dl>
+
+<dl>
+<dt><u>Function:</u> <b>fuse-file-info-&gt;flags-set!</b><i> fi::&lt;fuse-file-info&gt; v::&lt;int&gt; -&gt; &lt;void&gt;</i>
+<a name="IDX73"></a>
+</dt>
+</dl>
+
+<dl>
+<dt><u>Function:</u> <b>fuse-file-info-&gt;writepage</b><i> fi::&lt;fuse-file-info&gt; -&gt; &lt;int&gt;</i>
+<a name="IDX74"></a>
+</dt>
+</dl>
+
+<dl>
+<dt><u>Function:</u> <b>fuse-file-info-&gt;writepage-set!</b><i> fi::&lt;fuse-file-info&gt; v::&lt;int&gt; -&gt; &lt;void&gt;</i>
+<a name="IDX75"></a>
+</dt>
+</dl>
+
+<dl>
+<dt><u>Function:</u> <b>fuse-file-info-&gt;direct_io</b><i> fi::&lt;fuse-file-info&gt; -&gt; &lt;boolean&gt;</i>
+<a name="IDX76"></a>
+</dt>
+</dl>
+
+<dl>
+<dt><u>Function:</u> <b>fuse-file-info-&gt;direct_io-set!</b><i> fi::&lt;fuse-file-info&gt; v::&lt;boolean&gt; -&gt; &lt;void&gt;</i>
+<a name="IDX77"></a>
+</dt>
+</dl>
+
+<dl>
+<dt><u>Function:</u> <b>fuse-file-info-&gt;keep_cache</b><i> fi::&lt;fuse-file-info&gt; -&gt; &lt;boolean&gt;</i>
+<a name="IDX78"></a>
+</dt>
+</dl>
+
+<dl>
+<dt><u>Function:</u> <b>fuse-file-info-&gt;keep_cache-set!</b><i> fi::&lt;fuse-file-info&gt; v::&lt;boolean&gt; -&gt; &lt;void&gt;</i>
+<a name="IDX79"></a>
+</dt>
+</dl>
+
+<dl>
+<dt><u>Function:</u> <b>fuse-file-info-&gt;flush</b><i> fi::&lt;fuse-file-info&gt; -&gt; &lt;boolean&gt;</i>
+<a name="IDX80"></a>
+</dt>
+</dl>
+
+<dl>
+<dt><u>Function:</u> <b>fuse-file-info-&gt;flush-set!</b><i> fi::&lt;fuse-file-info&gt; v::&lt;boolean&gt; -&gt; &lt;void&gt;</i>
+<a name="IDX81"></a>
+</dt>
+</dl>
+
+<dl>
+<dt><u>Function:</u> <b>fuse-file-info-&gt;fh</b><i> fi::&lt;fuse-file-info&gt; -&gt; &lt;int&gt;</i>
+<a name="IDX82"></a>
+</dt>
+</dl>
+
+<dl>
+<dt><u>Function:</u> <b>fuse-file-info-&gt;fh-set!</b><i> fi::&lt;fuse-file-info&gt; v::&lt;int&gt; -&gt; &lt;void&gt;</i>
+<a name="IDX83"></a>
+</dt>
+</dl>
+
+<dl>
+<dt><u>Function:</u> <b>fuse-file-info-&gt;lock_owner</b><i> fi::&lt;fuse-file-info&gt; -&gt; &lt;int&gt;</i>
+<a name="IDX84"></a>
+</dt>
+</dl>
+
+<dl>
+<dt><u>Function:</u> <b>fuse-file-info-&gt;lock_owner-set!</b><i> fi::&lt;fuse-file-info&gt; v::&lt;int&gt; -&gt; &lt;void&gt;</i>
+<a name="IDX85"></a>
+</dt>
+</dl>
+
+<hr size="6">
+<a name="SEC_About"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[Contents]</td>
+<td valign="middle" align="left">[Index]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h1>About This Document</h1>
+<p>
+  This document was generated by <em>Teruaki Gemma</em> on <em>November, 25 2008</em> using <a href="http://www.nongnu.org/texi2html/"><em>texi2html 1.78</em></a>.
+</p>
+<p>
+  The buttons in the navigation panels have the following meaning:
+</p>
+<table border="1">
+  <tr>
+    <th> Button </th>
+    <th> Name </th>
+    <th> Go to </th>
+    <th> From 1.2.3 go to</th>
+  </tr>
+  <tr>
+    <td align="center"> [ &lt; ] </td>
+    <td align="center">Back</td>
+    <td>Previous section in reading order</td>
+    <td>1.2.2</td>
+  </tr>
+  <tr>
+    <td align="center"> [ &gt; ] </td>
+    <td align="center">Forward</td>
+    <td>Next section in reading order</td>
+    <td>1.2.4</td>
+  </tr>
+  <tr>
+    <td align="center"> [ &lt;&lt; ] </td>
+    <td align="center">FastBack</td>
+    <td>Beginning of this chapter or previous chapter</td>
+    <td>1</td>
+  </tr>
+  <tr>
+    <td align="center"> [ Up ] </td>
+    <td align="center">Up</td>
+    <td>Up section</td>
+    <td>1.2</td>
+  </tr>
+  <tr>
+    <td align="center"> [ &gt;&gt; ] </td>
+    <td align="center">FastForward</td>
+    <td>Next chapter</td>
+    <td>2</td>
+  </tr>
+  <tr>
+    <td align="center"> [Top] </td>
+    <td align="center">Top</td>
+    <td>Cover (top) of document</td>
+    <td> &nbsp; </td>
+  </tr>
+  <tr>
+    <td align="center"> [Contents] </td>
+    <td align="center">Contents</td>
+    <td>Table of contents</td>
+    <td> &nbsp; </td>
+  </tr>
+  <tr>
+    <td align="center"> [Index] </td>
+    <td align="center">Index</td>
+    <td>Index</td>
+    <td> &nbsp; </td>
+  </tr>
+  <tr>
+    <td align="center"> [ ? ] </td>
+    <td align="center">About</td>
+    <td>About (help)</td>
+    <td> &nbsp; </td>
+  </tr>
+</table>
+
+<p>
+  where the <strong> Example </strong> assumes that the current position is at <strong> Subsubsection One-Two-Three </strong> of a document of the following structure:
+</p>
+
+<ul>
+  <li> 1. Section One
+    <ul>
+      <li>1.1 Subsection One-One
+        <ul>
+          <li>...</li>
+        </ul>
+      </li>
+      <li>1.2 Subsection One-Two
+        <ul>
+          <li>1.2.1 Subsubsection One-Two-One</li>
+          <li>1.2.2 Subsubsection One-Two-Two</li>
+          <li>1.2.3 Subsubsection One-Two-Three &nbsp; &nbsp;
+            <strong>&lt;== Current Position </strong></li>
+          <li>1.2.4 Subsubsection One-Two-Four</li>
+        </ul>
+      </li>
+      <li>1.3 Subsection One-Three
+        <ul>
+          <li>...</li>
+        </ul>
+      </li>
+      <li>1.4 Subsection One-Four</li>
+    </ul>
+  </li>
+</ul>
+
+<hr size="1">
+<p>
+ <font size="-1">
+  This document was generated by <em>Teruaki Gemma</em> on <em>November, 25 2008</em> using <a href="http://www.nongnu.org/texi2html/"><em>texi2html 1.78</em></a>.
+ </font>
+ <br>
+
+</p>
+</body>
+</html>

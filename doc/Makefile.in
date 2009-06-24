@@ -1,0 +1,119 @@
+srcdir      = @srcdir@
+VPATH       = $(srcdir)
+top_builddir = @top_builddir@
+top_srcdir   = @top_srcdir@
+
+EXTRACTED = fuse-refe.texi fuse-refj.texi
+GENERATED = Makefile 
+GOSH = @GOSH@
+INSTALL = @INSTALL@
+MKINSTDIR = $(top_srcdir)/mkinstalldirs
+MAKEINFO = @MAKEINFO@
+GZIP_PROGRAM = @GZIP_PROGRAM@
+
+TEXIS = fuse-ref.texi
+
+# Manual page destination.  Default @mandir@ doesn't include 'share'
+# in the path, so I redefine it---a user can still override it by
+# make mandir=wherever
+prefix      = @prefix@
+datadir     = @datadir@
+datarootdir = @datarootdir@
+mandir      = @mandir@
+infodir     = @infodir@
+
+DESTDIR =
+
+all: info
+
+install: all
+	if test ! -d $(DESTDIR)$(infodir); then $(MKINSTDIR) $(DESTDIR)$(infodir); fi
+	if test -f fuse-refe.info.gz -o -f fuse-refj.info.gz; then \
+	  for info in *.info*; do \
+	    $(INSTALL) -m 444 $$info $(DESTDIR)$(infodir)/; \
+	  done; \
+	fi
+
+uninstall:
+	(cd $(infodir); \
+	 if test -f fuse-refe.info -o -f fuse-refe.info.gz; \
+	   then rm -rf fuse-refe.*; \
+	 fi; \
+	 if test -f fuse-refj.info -o -f fuse-refj.info.gz; \
+	   then rm -rf fuse-refj.*; \
+	 fi)
+
+check :
+
+test :
+
+texi : fuse-refe.texi fuse-refj.texi
+
+html : fuse-refe.html fuse-refj.html
+
+htmls : fuse-refe_toc.html fuse-refj_toc.html
+
+dvi : fuse-refe.dvi
+
+pdf : fuse-refe.pdf
+
+info : fuse-refe.info.gz fuse-refj.info.gz
+
+fuse-refe.html : fuse-refe.texi
+	texi2html --number fuse-refe.texi
+
+fuse-refe_toc.html : fuse-refe.texi
+	texi2html --split section --number fuse-refe.texi
+
+fuse-refe.dvi : fuse-refe.texi
+	texi2dvi fuse-refe.texi
+
+fuse-refe.pdf : fuse-refe.texi
+	pdftex fuse-refe.texi
+
+fuse-refe.texi : $(TEXIS) extract
+	$(GOSH) ./extract -en -o fuse-refe.texi fuse-ref.texi
+
+fuse-refe.info.gz : fuse-refe.texi
+	if test X$(MAKEINFO) != X -a X$(GZIP_PROGRAM) != X; then \
+	  env LANG=C $(MAKEINFO) --no-warn fuse-refe.texi; \
+	  rm -rf fuse-refe.info*.gz; \
+	  $(GZIP_PROGRAM) fuse-refe.info; \
+	fi
+
+fuse-refj.html : fuse-refj.texi
+	texi2html --init-file=ja-init.pl --number fuse-refj.texi
+
+fuse-refj_toc.html : fuse-refj.texi
+	texi2html --init-file=ja-init.pl --split section --number fuse-refj.texi
+	for f in fuse-refj/fuse-refj*.html; do \
+	  sed 's/^<body lang="en"/<body lang="ja"/' $$f > $$f.t && mv $$f.t $$f; \
+	done
+
+fuse-refj.dvi : fuse-refj.texi
+	texi2dvi fuse-refj.texi
+
+fuse-refj.pdf : fuse-refj.texi
+	pdftex fuse-refj.texi
+
+fuse-refj.texi : $(TEXIS) extract
+	$(GOSH) ./extract -jp -o fuse-refj.texi fuse-ref.texi
+
+fuse-refj.info.gz : fuse-refj.texi
+	if test X$(MAKEINFO) != X -a X$(GZIP_PROGRAM) != X; then \
+	  env LANG=C $(MAKEINFO) --no-warn fuse-refj.texi; \
+	  rm -rf fuse-refj.info*.gz; \
+	  $(GZIP_PROGRAM) fuse-refj.info; \
+	fi
+
+clean:
+	rm -rf core *~ *.aux *.cl *.cls *.cp *.fn *.fns *.ky *.log *.md *.mds \
+	       *.pg *.toc *.tp *.tps *.vr *.vrs *.pdf *.dvi *.info* \
+	       $(EXTRACTED)
+
+distclean : clean
+	rm -rf $(GENERATED)
+
+maintainer-clean : clean
+	rm -f fuse-ref*.html fuse-ref*.dvi Makefile $(GENERATED)
+	rm -rf fuse-ref*/
